@@ -1,0 +1,7 @@
+{
+  "name": "LuxeVault AI",
+  "description": "Luxury financial dashboard with AI expense tracking and anti-impulse labor cost calculation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

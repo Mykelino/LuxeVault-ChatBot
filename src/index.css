@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-luxury-bg: #0a0a0a;
+  --color-luxury-gold: #d4af37;
+  --color-luxury-gold-muted: rgba(212, 175, 55, 0.2);
+  --font-sans: "Inter", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-luxury-bg);
+  color: #ffffff;
+  font-family: var(--font-sans);
+}
+
+.gold-border {
+  border: 1px solid var(--color-luxury-gold);
+}
+
+.gold-glow {
+  box-shadow: 0 0 15px var(--color-luxury-gold-muted);
+}
+
+.luxury-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6);
+}

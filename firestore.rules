@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - email: string (required)
+    //   - salary: number (required)
+    //
+    // Collection: expenses
+    // Document ID: {expenseId}
+    // Fields:
+    //   - user_id: string (required, must match auth.uid)
+    //   - amount: number (required, positive)
+    //   - category: string (required)
+    //   - description: string (required)
+    //   - created_at: timestamp (required)
+    //   - registered_at: timestamp (optional)
+    //   - has_time: bool (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.user_id;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['salary']) &&
+             (data.email is string || !('email' in data)) &&
+             data.salary is number && data.salary >= 0 &&
+             (!('daily_budget' in data) || (data.daily_budget is number && data.daily_budget >= 0));
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['user_id', 'amount', 'category', 'description', 'created_at']) &&
+             data.keys().hasOnly(['user_id', 'amount', 'category', 'description', 'created_at', 'registered_at', 'has_time']) &&
+             data.user_id == request.auth.uid &&
+             data.amount is number && data.amount > 0 &&
+             data.category is string && data.category.size() > 0 && data.category.size() < 50 &&
+             data.description is string && data.description.size() < 200 &&
+             data.created_at is timestamp &&
+             (!('registered_at' in data) || data.registered_at is timestamp) &&
+             (!('has_time' in data) || data.has_time is bool);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+    }
+
+    // Expenses
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+      allow create: if isAuthenticated() && isValidExpense(request.resource.data);
+      allow update: if isAuthenticated() && isDocOwner() && isValidExpense(request.resource.data);
+      allow delete: if isAuthenticated() && isDocOwner();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
