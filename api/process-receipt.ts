@@ -45,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           required: ["date", "items"]
         }
       }
-    });
+    }, { apiVersion: "v1" });
 
     const result = await model.generateContent([
       prompt,
