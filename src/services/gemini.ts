@@ -1,5 +1,5 @@
 export async function processExpense(text: string) {
-  const response = await fetch("/api/gemini/process-expense", {
+  const response = await fetch("/api/process-expense", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text })
@@ -9,7 +9,7 @@ export async function processExpense(text: string) {
 }
 
 export async function processReceiptImage(base64Image: string, mimeType: string) {
-  const response = await fetch("/api/gemini/process-receipt", {
+  const response = await fetch("/api/process-receipt", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ base64Image, mimeType })
@@ -19,7 +19,7 @@ export async function processReceiptImage(base64Image: string, mimeType: string)
 }
 
 export async function getAntiImpulseResponse(price: number, hourlyWage: number, topCategory: string, categorySpending: number) {
-  const response = await fetch("/api/gemini/anti-impulse", {
+  const response = await fetch("/api/anti-impulse", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ price, hourlyWage, topCategory, categorySpending })
