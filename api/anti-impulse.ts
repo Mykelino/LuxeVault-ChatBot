@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { price, hourlyWage, topCategory, categorySpending } = req.body;
     const hours = (price / hourlyWage).toFixed(1);
-    const prompt = `User wants to buy something for ${price}€. Hourly wage: ${hourlyWage}€, costs ${hours} hours. Top category: ${topCategory} (spent ${categorySpending}€). Italian luxury tough love response.`;
+    const prompt = `User wants to buy something for ${price}€. Hourly wage: ${hourlyWage}€, costs ${hours} hours. Top category: ${topCategory} (spent ${categorySpending}€). Italian luxury tough love response. Respond with text only.`;
     
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: "v1" });
     const result = await model.generateContent(prompt);
