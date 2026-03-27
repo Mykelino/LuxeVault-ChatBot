@@ -40,13 +40,6 @@ import {
   Legend 
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  auth, 
-  googleProvider, 
-  signInWithPopup, 
-  onAuthStateChanged, 
-  signOut
-} from './lib/firebase';
 import { processExpense, getAntiImpulseResponse, processReceiptImage } from './services/gemini';
 import { cn } from './lib/utils';
 
