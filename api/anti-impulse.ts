@@ -1,10 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+  if (!API_KEY) {
+    console.error("CRITICAL ERROR: No Gemini API Key found.");
+    return res.status(500).json({ error: "API Key Missing" });
+  }
 
   try {
     const { price, hourlyWage, topCategory, categorySpending } = req.body;
