@@ -1,8 +1,8 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
@@ -20,14 +20,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     Extract date (YYYY-MM-DD), time (HH:mm or null) and items.
     Return JSON: { date: string, time: string, items: Array<{ amount: number, category: string, description: string }> }.`;
 
-    const result = await ai.models.generateContent({
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      contents: [
-        { role: "user", parts: [{ text: prompt }, { inlineData: { data: base64Image, mimeType } }] }
-      ]
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            date: { type: SchemaType.STRING },
+            time: { type: SchemaType.STRING },
+            items: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  amount: { type: SchemaType.NUMBER },
+                  category: { type: SchemaType.STRING },
+                  description: { type: SchemaType.STRING }
+                },
+                required: ["amount", "category", "description"]
+              }
+            }
+          },
+          required: ["date", "items"]
+        }
+      }
     });
 
-    res.json(JSON.parse(result.text));
+    const result = await model.generateContent([
+      prompt,
+      { inlineData: { data: base64Image, mimeType } }
+    ]);
+
+    res.json(JSON.parse(result.response.text()));
   } catch (error: any) {
     console.error("Gemini Error:", error);
     res.status(500).json({ error: error.message });

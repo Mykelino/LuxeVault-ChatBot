@@ -1,15 +1,15 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   if (!API_KEY) {
-    console.error("CRITICAL ERROR: No Gemini API Key found in Environment Variables.");
-    return res.status(500).json({ error: "API Key Missing. Check Vercel Settings -> Environment Variables." });
+    console.error("CRITICAL ERROR: No Gemini API Key found.");
+    return res.status(500).json({ error: "API Key Missing" });
   }
 
   try {
@@ -22,26 +22,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     Return JSON: { amount: number, category: string, description: string, date: YYYY-MM-DD, time: HH:mm or null }.
     Categories: Cibo, Trasporti, Shopping, Salute, Svago, Casa, Altro, Generale.`;
 
-    const result = await ai.models.generateContent({
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
-          type: Type.OBJECT,
+          type: SchemaType.OBJECT,
           properties: {
-            amount: { type: Type.NUMBER },
-            category: { type: Type.STRING },
-            description: { type: Type.STRING },
-            date: { type: Type.STRING },
-            time: { type: Type.STRING, nullable: true }
+            amount: { type: SchemaType.NUMBER },
+            category: { type: SchemaType.STRING },
+            description: { type: SchemaType.STRING },
+            date: { type: SchemaType.STRING },
+            time: { type: SchemaType.STRING }
           },
           required: ["amount", "category", "description", "date"]
         }
       }
     });
 
-    res.json(JSON.parse(result.text));
+    const result = await model.generateContent(prompt);
+    res.json(JSON.parse(result.response.text()));
   } catch (error: any) {
     console.error("Gemini Error:", error);
     res.status(500).json({ error: error.message });
