@@ -240,7 +240,14 @@ function LuxeVaultApp() {
 
           let currentRunningTotal = getTodayTotal(dateObj);
           const newExpenses = [...expenses];
+          let missingAmountCount = 0;
+
           for (const exp of items) {
+            if (!exp.amount || exp.amount <= 0) {
+              missingAmountCount++;
+              continue;
+            }
+            
             const expenseData = {
               user_id: user.uid,
               amount: exp.amount,
@@ -273,6 +280,9 @@ function LuxeVaultApp() {
           let responseText = `Ho analizzato lo scontrino${date ? ` del ${dateObj.toLocaleDateString('it-IT')}` : ''}.`;
           if (successCount > 0) {
             responseText += ` Caricati ${successCount} articoli nel tuo Vault.`;
+          }
+          if (missingAmountCount > 0) {
+            responseText += `\n\n⚠️ ${missingAmountCount} articoli saltati: Inserisci un importo valido.`;
           }
           
           let actions: MessageAction[] = [];
@@ -588,6 +598,17 @@ function LuxeVaultApp() {
           }
         } else {
         const expenseData = await processExpense(userMessage);
+        
+        if (!expenseData.amount || expenseData.amount <= 0) {
+          setMessages(prev => [...prev, { 
+            id: Date.now().toString(), 
+            text: "Per favore, inserisci un importo valido per poter registrare la spesa.", 
+            sender: 'ai' 
+          }]);
+          setIsProcessing(false);
+          return;
+        }
+
         let dateObj = new Date();
         const hasTime = !!expenseData.time;
 

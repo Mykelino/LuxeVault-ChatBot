@@ -10,7 +10,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const { base64Image, mimeType } = req.body;
-    const prompt = `Analyze receipt. Return ONLY JSON: {"date": "string", "time": "string", "items": [{"amount": number, "category": string, "description": string}]}.`;
+    const prompt = `Analizza questo scontrino. 
+    Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
+    NOTA: Spese alimentari, acqua e pane vanno in "Cibo". 
+    Ritorna SOLO JSON: {"date": "string (YYYY-MM-DD)", "time": "string (HH:mm)", "items": [{"amount": number (sempre positivo), "category": string, "description": string}]}.`;
 
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
     let lastError;

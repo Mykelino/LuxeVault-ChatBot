@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const { price, hourlyWage, topCategory, categorySpending } = req.body;
-    const prompt = `Price: ${price}€, Wage: ${hourlyWage}€/h. User spent ${categorySpending}€ in ${topCategory}. Italian tough love response.`;
+    const prompt = `Prezzo: ${price}€, Salario: ${hourlyWage}€/h. L'utente ha speso ${categorySpending}€ in ${topCategory}. Rispondi in italiano con un tono "tough love" (deciso ma motivante), tipico di un assistente finanziario d'élite. Spiega quanto deve lavorare per permetterselo.`;
 
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
     for (const modelName of modelsToTry) {

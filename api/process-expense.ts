@@ -12,7 +12,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { text } = req.body;
     const currentDate = new Date().toISOString().split('T')[0];
-    const prompt = `Extract info from: "${text}". Date: ${currentDate}. Return ONLY JSON: {"amount": number, "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
+    const prompt = `Estrai le informazioni da questa spesa: "${text}". Data corrente: ${currentDate}. 
+    Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
+    NOTA: "Acqua", "Pane", "Spesa" vanno in "Cibo". 
+    Ritorna SOLO JSON: {"amount": number (oppure 0 se non trovato), "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
 
     // Prova diversi modelli in cascata finché uno non funziona
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
