@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const prompt = `Extract info from: "${text}". Date: ${currentDate}. Return ONLY JSON: {"amount": number, "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
 
     // Prova diversi modelli in cascata finché uno non funziona
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
+    const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
     let lastError;
 
     for (const modelName of modelsToTry) {
