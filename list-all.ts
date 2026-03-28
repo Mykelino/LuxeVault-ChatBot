@@ -1,0 +1,1 @@
+﻿import { GoogleGenerativeAI } from '@google/generative-ai'; import 'dotenv/config'; const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || ''); async function list() { try { const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // Note: listModels is not on genAI directly in this version? } catch (e) { console.error(e.message); } } list();

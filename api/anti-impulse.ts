@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { price, hourlyWage, topCategory, categorySpending } = req.body;
     const prompt = `Price: ${price}€, Wage: ${hourlyWage}€/h. User spent ${categorySpending}€ in ${topCategory}. Italian tough love response.`;
 
-    const modelsToTry = ["gemini-1.5-flash", "gemini-pro"];
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
     for (const modelName of modelsToTry) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });

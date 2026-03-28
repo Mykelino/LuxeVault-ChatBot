@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const prompt = `Extract info from: "${text}". Date: ${currentDate}. Return ONLY JSON: {"amount": number, "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
 
     // Prova diversi modelli in cascata finché uno non funziona
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
     let lastError;
 
     for (const modelName of modelsToTry) {
@@ -28,9 +28,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (jsonMatch) {
           return res.json(JSON.parse(jsonMatch[0]));
         }
-      } catch (e) {
+      } catch (e: any) {
         lastError = e;
-        console.warn(`${modelName} failed, trying next...`);
+        console.warn(`${modelName} failed: ${e.message}`);
       }
     }
     throw lastError || new Error("All models failed");

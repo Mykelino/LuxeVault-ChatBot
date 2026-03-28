@@ -1,11 +1,12 @@
+import 'dotenv/config';
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { fileURLToPath } from "url";
-import processExpense from "./api/process-expense";
-import processReceipt from "./api/process-receipt";
-import antiImpulse from "./api/anti-impulse";
-import calculateLabor from "./api/calculate-labor";
+import processExpense from "./api/process-expense.js";
+import processReceipt from "./api/process-receipt.js";
+import antiImpulse from "./api/anti-impulse.js";
+import calculateLabor from "./api/calculate-labor.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
