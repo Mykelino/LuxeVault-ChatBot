@@ -10,12 +10,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!API_KEY) return res.status(500).json({ error: "API Key Missing" });
 
   try {
-    const { text } = req.body;
+    const { text, lang } = req.body;
     const currentDate = new Date().toISOString().split('T')[0];
-    const prompt = `Estrai le informazioni da questa spesa: "${text}". Data corrente: ${currentDate}. 
-    Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
-    NOTA: "Acqua", "Pane", "Spesa" vanno in "Cibo". 
-    Ritorna SOLO JSON: {"amount": number (oppure 0 se non trovato), "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
+    
+    let prompt = "";
+    if (lang === 'en') {
+      prompt = `Extract info from: "${text}". Current date: ${currentDate}. 
+      Allowed categories: ["Food", "Transport", "Shopping", "Health", "Leisure", "Home", "Other"]. 
+      Note: "Water", "Bread", "Groceries" go to "Food". 
+      Return ONLY JSON: {"amount": number (or 0 if not found), "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
+    } else {
+      prompt = `Estrai le informazioni da questa spesa: "${text}". Data corrente: ${currentDate}. 
+      Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
+      NOTA: "Acqua", "Pane", "Spesa" vanno in "Cibo". 
+      Ritorna SOLO JSON: {"amount": number (oppure 0 se non trovato), "category": string, "description": string, "date": "YYYY-MM-DD", "time": "HH:mm" or null}.`;
+    }
 
     // Prova diversi modelli in cascata finché uno non funziona
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];

@@ -9,8 +9,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!API_KEY) return res.status(500).json({ error: "API Key Missing" });
 
   try {
-    const { price, hourlyWage, topCategory, categorySpending } = req.body;
-    const prompt = `Prezzo: ${price}€, Salario: ${hourlyWage}€/h. L'utente ha speso ${categorySpending}€ in ${topCategory}. Rispondi in italiano con un tono "tough love" (deciso ma motivante), tipico di un assistente finanziario d'élite. Spiega quanto deve lavorare per permetterselo.`;
+    const { price, hourlyWage, topCategory, categorySpending, lang } = req.body;
+    let prompt = "";
+    if (lang === 'en') {
+      prompt = `Price: ${price}€, Salary: ${hourlyWage}€/h. User has spent ${categorySpending}€ in ${topCategory}. Respond in English with a "tough love" tone (firm but motivating), typical of an elite financial assistant. Explain how much they need to work to afford it.`;
+    } else {
+      prompt = `Prezzo: ${price}€, Salario: ${hourlyWage}€/h. L'utente ha speso ${categorySpending}€ in ${topCategory}. Rispondi in italiano con un tono "tough love" (deciso ma motivante), tipico di un assistente finanziario d'élite. Spiega quanto deve lavorare per permetterselo.`;
+    }
 
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
     for (const modelName of modelsToTry) {

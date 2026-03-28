@@ -42,6 +42,159 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { processExpense, getAntiImpulseResponse, processReceiptImage } from './services/gemini';
 import { cn } from './lib/utils';
+// Languages
+type Language = 'it' | 'en';
+
+const translations = {
+  it: {
+    welcome: 'Benvenuto in LuxeVault AI. Come posso aiutarti a gestire il tuo patrimonio oggi?',
+    analyzing_receipt: 'Sto analizzando lo scontrino...',
+    receipt_error: 'Non sono riuscito a leggere lo scontrino. Assicurati che l\'immagine sia chiara.',
+    receipt_of: 'del',
+    receipt_uploaded: 'Ho analizzato lo scontrino',
+    items_loaded: 'Caricati {count} articoli nel tuo Vault.',
+    items_skipped: '{count} articoli saltati: Inserisci un importo valido.',
+    budget_warning: 'Attenzione: {count} articoli superano il tuo budget giornaliero ({budget}€). Desideri aggiungerli comunque?',
+    confirm_add: 'Conferma e aggiungi',
+    cancel: 'Annulla',
+    analysis_error: 'Errore durante l\'analisi dello scontrino.',
+    invalid_email: 'Inserisci un indirizzo email valido.',
+    welcome_vault: 'Benvenuto nel Vault!',
+    session_closed: 'Sessione chiusa.',
+    salary_set: 'Stipendio impostato a {value}€.',
+    budget_set: 'Budget giornaliero impostato a {value}€.',
+    budget_exceeded: 'Budget giornaliero superato!',
+    today_total: 'Spesa totale odierna: {total}€ (Limite: {limit}€).',
+    budget_attention: 'Attenzione al budget!',
+    budget_percent: 'Sei al {percent}% del tuo budget giornaliero ({budget}€).',
+    high_expense: 'Spesa elevata rilevata!',
+    high_expense_desc: 'Questa spesa da {amount}€ rappresenta il {percent}% del tuo budget giornaliero.',
+    set_salary_first: 'Per favore, imposta prima il tuo stipendio nel profilo per usare questa funzione.',
+    invalid_amount: 'Per favore, inserisci un importo valido per poter registrare la spesa.',
+    expense_recorded: 'Spesa registrata',
+    login_title: 'LUXEVAULT AI',
+    login_subtitle: 'Gestione patrimoniale d\'élite.',
+    email_placeholder: 'La tua email',
+    enter_vault: 'Entra nel Vault',
+    vault_encrypted: 'Il Vault è crittografato localmente.',
+    logout: 'Esci',
+    profile: 'Profilo',
+    add: 'Aggiungi',
+    email: 'Email',
+    monthly_salary: 'Stipendio Mensile',
+    daily_budget: 'Budget Giornaliero',
+    delete_salary: 'Elimina Stipendio',
+    confirm_salary: 'Conferma Stipendio',
+    delete_budget: 'Elimina Budget',
+    confirm_budget: 'Conferma Budget',
+    ai_assistant: 'AI Assistant',
+    ask: 'Chiedi...',
+    scan: 'Scansiona',
+    today: 'Oggi',
+    total_expenses: 'Totale Spese',
+    cat_distribution: 'Ripartizione Categorie',
+    daily_expenses: 'Spese Giornaliere',
+    expense_history: 'Storico Spese',
+    purchase: 'Acquisto',
+    registration: 'Registrazione',
+    category: 'Categoria',
+    no_expenses: 'Nessuna spesa registrata per questo periodo.',
+    hour_short: 'ore',
+    registered: 'Registrato',
+    delete_expense: 'Elimina spesa',
+    prev_month: 'Mese precedente',
+    choose_month: 'Scegli mese',
+    next_month: 'Mese successivo',
+    back_today: 'Torna a Oggi',
+    something_went_wrong: 'Qualcosa è andato storto.',
+    error_occurred: 'Ops! Si è verificato un errore',
+    reload_app: 'Ricarica App',
+    categories: {
+      'Cibo': 'Cibo',
+      'Trasporti': 'Trasporti',
+      'Shopping': 'Shopping',
+      'Salute': 'Salute',
+      'Svago': 'Svago',
+      'Casa': 'Casa',
+      'Altro': 'Altro',
+      'Generale': 'Generale'
+    }
+  },
+  en: {
+    welcome: 'Welcome to LuxeVault AI. How can I help you manage your wealth today?',
+    analyzing_receipt: 'Analyzing receipt...',
+    receipt_error: 'Could not read the receipt. Make sure the image is clear.',
+    receipt_of: 'from',
+    receipt_uploaded: 'I analyzed the receipt',
+    items_loaded: 'Loaded {count} items into your Vault.',
+    items_skipped: '{count} items skipped: Enter a valid amount.',
+    budget_warning: 'Warning: {count} items exceed your daily budget ({budget}€). Do you want to add them anyway?',
+    confirm_add: 'Confirm and Add',
+    cancel: 'Cancel',
+    analysis_error: 'Error during receipt analysis.',
+    invalid_email: 'Please enter a valid email address.',
+    welcome_vault: 'Welcome to the Vault!',
+    session_closed: 'Session closed.',
+    salary_set: 'Salary set to {value}€.',
+    budget_set: 'Daily budget set to {value}€.',
+    budget_exceeded: 'Daily budget exceeded!',
+    today_total: 'Today\'s total spending: {total}€ (Limit: {limit}€).',
+    budget_attention: 'Watch your budget!',
+    budget_percent: 'You are at {percent}% of your daily budget ({budget}€).',
+    high_expense: 'High expense detected!',
+    high_expense_desc: 'This expense of {amount}€ represents {percent}% of your daily budget.',
+    set_salary_first: 'Please set your salary in your profile first to use this feature.',
+    invalid_amount: 'Please enter a valid amount to record the expense.',
+    expense_recorded: 'Expense recorded',
+    login_title: 'LUXEVAULT AI',
+    login_subtitle: 'Elite wealth management.',
+    email_placeholder: 'Your email',
+    enter_vault: 'Enter the Vault',
+    vault_encrypted: 'The Vault is locally encrypted.',
+    logout: 'Logout',
+    profile: 'Profile',
+    add: 'Add',
+    email: 'Email',
+    monthly_salary: 'Monthly Salary',
+    daily_budget: 'Daily Budget',
+    delete_salary: 'Delete Salary',
+    confirm_salary: 'Confirm Salary',
+    delete_budget: 'Delete Budget',
+    confirm_budget: 'Confirm Budget',
+    ai_assistant: 'AI Assistant',
+    ask: 'Ask...',
+    scan: 'Scan',
+    today: 'Today',
+    total_expenses: 'Total Expenses',
+    cat_distribution: 'Category Distribution',
+    daily_expenses: 'Daily Expenses',
+    expense_history: 'Expense History',
+    purchase: 'Purchase',
+    registration: 'Registration',
+    category: 'Category',
+    no_expenses: 'No expenses recorded for this period.',
+    hour_short: 'hours',
+    registered: 'Registered',
+    delete_expense: 'Delete expense',
+    prev_month: 'Previous month',
+    choose_month: 'Choose month',
+    next_month: 'Next month',
+    back_today: 'Back to Today',
+    something_went_wrong: 'Something went wrong.',
+    error_occurred: 'Oops! An error occurred',
+    reload_app: 'Reload App',
+    categories: {
+      'Food': 'Food',
+      'Transport': 'Transport',
+      'Shopping': 'Shopping',
+      'Health': 'Health',
+      'Leisure': 'Leisure',
+      'Home': 'Home',
+      'Other': 'Other',
+      'General': 'General'
+    }
+  }
+};
 
 // Types
 interface Expense {
@@ -117,7 +270,7 @@ class ErrorBoundary extends React.Component<any, any> {
 
   render() {
     if (this.state.hasError) {
-      let errorMessage = "Qualcosa è andato storto.";
+      let errorMessage = t('something_went_wrong');
       try {
         const parsedError = JSON.parse(this.state.error.message);
         if (parsedError.error) {
@@ -131,13 +284,13 @@ class ErrorBoundary extends React.Component<any, any> {
         <div className="min-h-screen flex items-center justify-center bg-luxury-bg p-4 text-center">
           <div className="luxury-card p-8 max-w-md w-full gold-border">
             <AlertCircle className="text-red-500 w-12 h-12 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-luxury-gold mb-2">Ops! Si è verificato un errore</h2>
+            <h2 className="text-xl font-bold text-luxury-gold mb-2">{t('error_occurred')}</h2>
             <p className="text-gray-400 mb-6">{errorMessage}</p>
             <button 
               onClick={() => window.location.reload()}
               className="px-6 py-2 bg-luxury-gold text-luxury-bg font-bold rounded-lg"
             >
-              Ricarica App
+              {t('reload_app')}
             </button>
           </div>
         </div>
@@ -149,11 +302,28 @@ class ErrorBoundary extends React.Component<any, any> {
 }
 
 function LuxeVaultApp() {
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem('luxevault_language');
+    return (saved as Language) || 'it';
+  });
+
+  const t = (key: string, params: Record<string, any> = {}) => {
+    let text = translations[language][key] || key;
+    Object.keys(params).forEach(p => {
+      text = text.replace(`{${p}}`, params[p]);
+    });
+    return text;
+  };
+
+  useEffect(() => {
+    localStorage.setItem('luxevault_language', language);
+  }, [language]);
+
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', text: 'Benvenuto in LuxeVault AI. Come posso aiutarti a gestire il tuo patrimonio oggi?', sender: 'ai' }
+    { id: '1', text: t('welcome'), sender: 'ai' }
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -202,7 +372,7 @@ function LuxeVaultApp() {
     if (!file || !user) return;
 
     setIsProcessing(true);
-    setMessages(prev => [...prev, { id: Date.now().toString(), text: "Sto analizzando lo scontrino...", sender: 'ai', type: 'info' }]);
+    setMessages(prev => [...prev, { id: Date.now().toString(), text: t('analyzing_receipt'), sender: 'ai', type: 'info' }]);
 
     try {
       const reader = new FileReader();
@@ -213,7 +383,7 @@ function LuxeVaultApp() {
         const { date, time, items } = await processReceiptImage(base64String, mimeType);
 
         if (items.length === 0) {
-          setMessages(prev => [...prev, { id: Date.now().toString(), text: "Non sono riuscito a leggere lo scontrino. Assicurati che l'immagine sia chiara.", sender: 'ai' }]);
+          setMessages(prev => [...prev, { id: Date.now().toString(), text: t('receipt_error'), sender: 'ai' }]);
         } else {
           let successCount = 0;
           let pendingItems = [];
@@ -277,20 +447,20 @@ function LuxeVaultApp() {
             localStorage.setItem(`luxevault_expenses_${user.uid}`, JSON.stringify(newExpenses));
           }
 
-          let responseText = `Ho analizzato lo scontrino${date ? ` del ${dateObj.toLocaleDateString('it-IT')}` : ''}.`;
+          let responseText = `${t('receipt_uploaded')}${date ? ` ${t('receipt_of')} ${dateObj.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US')}` : ''}.`;
           if (successCount > 0) {
-            responseText += ` Caricati ${successCount} articoli nel tuo Vault.`;
+            responseText += ` ${t('items_loaded', { count: successCount })}`;
           }
           if (missingAmountCount > 0) {
-            responseText += `\n\n⚠️ ${missingAmountCount} articoli saltati: Inserisci un importo valido.`;
+            responseText += `\n\n⚠️ ${t('items_skipped', { count: missingAmountCount })}`;
           }
           
           let actions: MessageAction[] = [];
           if (pendingItems.length > 0) {
-            responseText += `\n\n⚠️ Attenzione: ${pendingItems.length} articoli superano il tuo budget giornaliero (${profile?.daily_budget}€). Desideri aggiungerli comunque?`;
+            responseText += `\n\n⚠️ ${t('budget_warning', { count: pendingItems.length, budget: profile?.daily_budget })}`;
             actions = [
-              { label: "Conferma e aggiungi", type: 'confirm_expense', payload: { expenses: pendingItems } },
-              { label: "Annulla", type: 'cancel', payload: {} }
+              { label: t('confirm_add'), type: 'confirm_expense', payload: { expenses: pendingItems } },
+              { label: t('cancel'), type: 'cancel', payload: {} }
             ];
           }
 
@@ -375,7 +545,7 @@ function LuxeVaultApp() {
     // NEW: Local Email Login
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailInputLogin.trim())) {
-      toast.error("Inserisci un indirizzo email valido.");
+      toast.error(t('invalid_email'));
       return;
     }
 
@@ -388,7 +558,7 @@ function LuxeVaultApp() {
 
     setUser(mockUser);
     localStorage.setItem('luxevault_mock_user', JSON.stringify(mockUser));
-    toast.success("Benvenuto nel Vault!");
+    toast.success(t('welcome_vault'));
   };
 
   const handleLogout = async () => {
@@ -406,12 +576,12 @@ function LuxeVaultApp() {
     setExpenses([]);
     setProfile(null);
     setMessages([
-      { id: '1', text: 'Benvenuto in LuxeVault AI. Come posso aiutarti a gestire il tuo patrimonio oggi?', sender: 'ai' }
+      { id: '1', text: t('welcome'), sender: 'ai' }
     ]);
     setSalaryInput(0);
     setDailyBudgetInput(0);
     localStorage.removeItem('luxevault_mock_user');
-    toast.info("Sessione chiusa.");
+    toast.info(t('session_closed'));
   };
 
   const handleSetSalary = async (value: number) => {
@@ -425,7 +595,7 @@ function LuxeVaultApp() {
     
     setMessages(prev => [...prev, { 
       id: Date.now().toString(), 
-      text: `Stipendio impostato a ${value}€.`, 
+      text: t('salary_set', { value }), 
       sender: 'ai' 
     }]);
   };
@@ -441,7 +611,7 @@ function LuxeVaultApp() {
     
     setMessages(prev => [...prev, { 
       id: Date.now().toString(), 
-      text: `Budget giornaliero impostato a ${value}€.`, 
+      text: t('budget_set', { value }), 
       sender: 'ai' 
     }]);
   };
@@ -537,25 +707,24 @@ function LuxeVaultApp() {
       const finalTotal = alreadyIncludesThisAmount ? todayTotal : (todayTotal + amount);
       
       if (finalTotal > budget) {
-        toast.error(`Budget giornaliero superato!`, {
-          description: `Spesa totale odierna: ${(finalTotal || 0).toFixed(2)}€ (Limite: ${budget}€).`,
+        toast.error(t('budget_exceeded'), {
+          description: t('today_total', { total: (finalTotal || 0).toFixed(2), limit: budget }),
           duration: 6000,
         });
-        return; // Skip other notifications if budget is exceeded
+        return; 
       } else if (finalTotal >= budget * 0.8) {
-        toast.info(`Attenzione al budget!`, {
-          description: `Sei al ${Math.round((finalTotal / budget) * 100)}% del tuo budget giornaliero (${budget}€).`,
+        toast.info(t('budget_attention'), {
+          description: t('budget_percent', { percent: Math.round((finalTotal / budget) * 100), budget }),
           duration: 5000,
         });
-        return; // Skip "high expense" if we already show budget info
+        return; 
       }
     }
 
-    // 1. Check single expense threshold (Only if budget wasn't exceeded or reached 80%)
     if (amount >= threshold) {
       const percent = Math.round((amount / budget) * 100);
-      toast.warning(`Spesa elevata rilevata!`, {
-        description: `Questa spesa da ${amount}€ rappresenta il ${percent}% del tuo budget giornaliero.`,
+      toast.warning(t('high_expense'), {
+        description: t('high_expense_desc', { amount, percent }),
         duration: 5000,
       });
     }
@@ -591,18 +760,18 @@ function LuxeVaultApp() {
             const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Generale';
             const topAmount = categoryTotals[topCategory] || 0;
   
-            const aiResponse = await getAntiImpulseResponse(price, hourlyWage, topCategory, topAmount);
+            const aiResponse = await getAntiImpulseResponse(price, hourlyWage, topCategory, topAmount, language);
             setMessages(prev => [...prev, { id: Date.now().toString(), text: aiResponse, sender: 'ai', type: 'impulse' }]);
           } else {
-            setMessages(prev => [...prev, { id: Date.now().toString(), text: "Per favore, imposta prima il tuo stipendio nel profilo per usare questa funzione.", sender: 'ai' }]);
+            setMessages(prev => [...prev, { id: Date.now().toString(), text: t('set_salary_first'), sender: 'ai' }]);
           }
         } else {
-        const expenseData = await processExpense(userMessage);
+        const expenseData = await processExpense(userMessage, language);
         
         if (!expenseData.amount || expenseData.amount <= 0) {
           setMessages(prev => [...prev, { 
             id: Date.now().toString(), 
-            text: "Per favore, inserisci un importo valido per poter registrare la spesa.", 
+            text: t('invalid_amount'), 
             sender: 'ai' 
           }]);
           setIsProcessing(false);
@@ -663,10 +832,10 @@ function LuxeVaultApp() {
 
           checkBudgetNotification(expenseData.amount, dateObj, newExpenses);
 
-          const dateDisplay = expenseData.date ? ` del ${dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: hasTime ? '2-digit' : undefined, minute: hasTime ? '2-digit' : undefined })}` : '';
+          const dateDisplay = expenseData.date ? ` ${t('receipt_of')} ${dateObj.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: hasTime ? '2-digit' : undefined, minute: hasTime ? '2-digit' : undefined })}` : '';
           setMessages(prev => [...prev, { 
             id: Date.now().toString(), 
-            text: `Spesa registrata${dateDisplay}: ${expenseData.amount}€ per ${expenseData.description} (${expenseData.category}).`, 
+            text: `${t('expense_recorded')}${dateDisplay}: ${expenseData.amount}€ per ${expenseData.description} (${expenseData.category}).`, 
             sender: 'ai',
             type: 'expense'
           }]);
@@ -674,7 +843,7 @@ function LuxeVaultApp() {
       }
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, { id: Date.now().toString(), text: "Scusa, ho avuto un problema nel processare la tua richiesta.", sender: 'ai' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), text: t('something_went_wrong'), sender: 'ai' }]);
     } finally {
       setIsProcessing(false);
     }
@@ -757,14 +926,14 @@ function LuxeVaultApp() {
               <Wallet className="text-luxury-bg w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-luxury-gold tracking-tighter">LUXEVAULT AI</h1>
-          <p className="text-gray-400">Gestione patrimoniale d'élite.</p>
+          <h1 className="text-3xl font-bold text-luxury-gold tracking-tighter">{t('login_title')}</h1>
+          <p className="text-gray-400">{t('login_subtitle')}</p>
           
           <div className="space-y-4 pt-4">
             <div className="relative group">
               <input
                 type="email"
-                placeholder="La tua email"
+                placeholder={t('email_placeholder')}
                 value={emailInputLogin}
                 onChange={(e) => setEmailInputLogin(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
@@ -775,12 +944,12 @@ function LuxeVaultApp() {
               onClick={handleLogin}
               className="w-full py-3 bg-luxury-gold text-luxury-bg font-bold rounded-lg hover:bg-white transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.2)]"
             >
-              <LogIn size={20} /> Entra nel Vault
+              <LogIn size={20} /> {t('enter_vault')}
             </button>
           </div>
           
           <p className="text-[10px] text-gray-600 uppercase tracking-widest pt-2">
-            Il Vault è crittografato localmente.
+            {t('vault_encrypted')}
           </p>
         </motion.div>
       </div>
@@ -802,7 +971,7 @@ function LuxeVaultApp() {
             onClick={handleLogout}
             className="flex items-center justify-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white text-[10px] font-bold rounded-lg transition-all whitespace-nowrap"
           >
-            <LogOut size={12} /> Esci
+            <LogOut size={12} /> {t('logout')}
           </button>
         </div>
 
@@ -819,9 +988,35 @@ function LuxeVaultApp() {
               ) : (
                 <User size={18} />
               )}
-              <span className="text-sm font-medium uppercase tracking-widest">Profilo</span>
+              <span className="text-sm font-medium uppercase tracking-widest">{t('profile')}</span>
             </div>
             <div className="flex items-center gap-1">
+              {/* Language Switcher */}
+              <div className="flex items-center bg-white/5 border border-luxury-gold/20 rounded-lg p-0.5 mr-1">
+                <button 
+                  onClick={() => setLanguage('it')}
+                  className={cn(
+                    "px-1.5 py-1 text-[8px] font-bold rounded transition-all",
+                    language === 'it' 
+                      ? "bg-luxury-gold text-luxury-bg shadow-[0_0_10px_rgba(212,175,55,0.3)]" 
+                      : "text-luxury-gold/50 hover:text-luxury-gold"
+                  )}
+                >
+                  IT
+                </button>
+                <button 
+                  onClick={() => setLanguage('en')}
+                  className={cn(
+                    "px-1.5 py-1 text-[8px] font-bold rounded transition-all",
+                    language === 'en' 
+                      ? "bg-luxury-gold text-luxury-bg shadow-[0_0_10px_rgba(212,175,55,0.3)]" 
+                      : "text-luxury-gold/50 hover:text-luxury-gold"
+                  )}
+                >
+                  EN
+                </button>
+              </div>
+              
               <button 
                 onClick={() => setIsSalaryOpen(!isSalaryOpen)}
                 className={cn(
@@ -832,7 +1027,7 @@ function LuxeVaultApp() {
                 )}
               >
                 <Plus size={14} className={cn("transition-transform", isSalaryOpen && "rotate-45")} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Aggiungi</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter">{t('add')}</span>
               </button>
               <button 
                 onClick={() => setShowEmail(!showEmail)}
@@ -844,7 +1039,7 @@ function LuxeVaultApp() {
           </div>
           
           <div className="space-y-1">
-            <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Email</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-tighter">{t('email')}</p>
             <p className={cn(
               "text-sm truncate font-mono transition-all duration-500",
               !showEmail && "blur-sm select-none opacity-40"
@@ -865,7 +1060,7 @@ function LuxeVaultApp() {
                   <div className="bg-black/40 border border-luxury-gold/20 rounded-xl p-3 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[8px] text-gray-500 uppercase tracking-widest">Stipendio Mensile</span>
+                        <span className="text-[8px] text-gray-500 uppercase tracking-widest">{t('monthly_salary')}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-luxury-gold font-mono">{salaryInput}€</span>
                         </div>
@@ -877,7 +1072,7 @@ function LuxeVaultApp() {
                             setSalaryInput(0);
                           }}
                           className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                          title="Elimina Stipendio"
+                          title={t('delete_salary')}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -887,7 +1082,7 @@ function LuxeVaultApp() {
                             setIsSalaryOpen(false);
                           }}
                           className="p-2 bg-green-500/20 text-green-500 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.2)]"
-                          title="Conferma Stipendio"
+                          title={t('confirm_salary')}
                         >
                           <Check size={16} />
                         </button>
@@ -926,7 +1121,7 @@ function LuxeVaultApp() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[8px] text-gray-500 uppercase tracking-widest">Budget Giornaliero</span>
+                        <span className="text-[8px] text-gray-500 uppercase tracking-widest">{t('daily_budget')}</span>
                         <span className="text-lg font-bold text-luxury-gold font-mono">{dailyBudgetInput}€</span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -936,7 +1131,7 @@ function LuxeVaultApp() {
                             setDailyBudgetInput(0);
                           }}
                           className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                          title="Elimina Budget"
+                          title={t('delete_budget')}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -946,7 +1141,7 @@ function LuxeVaultApp() {
                             setIsSalaryOpen(false);
                           }}
                           className="p-2 bg-blue-500/20 text-blue-500 border border-blue-500/30 rounded-lg hover:bg-blue-500 hover:text-white transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                          title="Conferma Budget"
+                          title={t('confirm_budget')}
                         >
                           <Check size={16} />
                         </button>
@@ -992,7 +1187,7 @@ function LuxeVaultApp() {
           <div className="p-3 border-b border-luxury-gold/10 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <MessageSquare size={16} className="text-luxury-gold" />
-              <span className="text-[10px] font-medium uppercase tracking-widest">AI Assistant</span>
+              <span className="text-[10px] font-medium uppercase tracking-widest">{t('ai_assistant')}</span>
             </div>
             {isProcessing && (
               <div className="flex gap-1">
@@ -1052,7 +1247,7 @@ function LuxeVaultApp() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Chiedi..."
+                  placeholder={t('ask')}
                   className="w-full bg-black/50 border border-luxury-gold/20 rounded-full py-2 pl-3 pr-10 text-xs focus:outline-none focus:border-luxury-gold transition-all"
                 />
                 <button 
@@ -1067,7 +1262,7 @@ function LuxeVaultApp() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isProcessing}
                 className="p-2 bg-luxury-gold/10 border border-luxury-gold/30 rounded-full text-luxury-gold hover:bg-luxury-gold hover:text-luxury-bg transition-all disabled:opacity-50"
-                title="Scansiona"
+                title={t('scan')}
               >
                 <Camera size={16} />
               </button>
@@ -1129,7 +1324,7 @@ function LuxeVaultApp() {
                 onClick={() => setViewDate(new Date())}
                 className="px-4 py-1.5 bg-luxury-gold/10 border border-luxury-gold/30 rounded-full text-[10px] uppercase tracking-widest text-luxury-gold hover:bg-luxury-gold hover:text-luxury-bg font-bold transition-all shadow-sm shrink-0"
               >
-                Oggi
+                {t('today')}
               </button>
             </div>
           </div>
@@ -1139,7 +1334,7 @@ function LuxeVaultApp() {
               layout
               className="luxury-card p-4 w-[200px] sm:w-[260px] transition-all shrink-0 text-center"
             >
-              <p className="text-[10px] sm:text-xs text-gray-500 uppercase mb-1 tracking-tighter">Totale Spese {viewDate.toLocaleDateString('it-IT', { month: 'long' }).toUpperCase()}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 uppercase mb-1 tracking-tighter">{t('total_expenses')} {viewDate.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { month: 'long' }).toUpperCase()}</p>
               <p className="text-xl sm:text-2xl font-bold text-luxury-gold">
                 {(totalExpenses || 0).toFixed(2)}€
               </p>
@@ -1150,7 +1345,7 @@ function LuxeVaultApp() {
               className="luxury-card p-4 w-[200px] sm:w-[260px] relative group transition-all shrink-0 text-center"
             >
               <div className="relative mb-1 flex items-center justify-center">
-                <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-tighter">Stipendio Mensile</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-tighter">{t('monthly_salary')}</p>
                 <button 
                   onClick={() => setShowSalary(!showSalary)}
                   className="absolute -right-1 top-1/2 -translate-y-1/2 p-1 text-luxury-gold/50 hover:text-luxury-gold transition-colors"
@@ -1171,7 +1366,7 @@ function LuxeVaultApp() {
               className="luxury-card p-4 w-[200px] sm:w-[260px] relative group transition-all shrink-0 text-center"
             >
               <div className="relative mb-1 flex items-center justify-center">
-                <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-tighter">Budget Giornaliero</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-tighter">{t('daily_budget')}</p>
               </div>
               <p className="text-xl sm:text-2xl font-bold text-luxury-gold font-mono">
                 {profile?.daily_budget && profile.daily_budget > 0 
@@ -1188,7 +1383,7 @@ function LuxeVaultApp() {
           {/* Charts */}
           <div className="luxury-card p-6 h-[400px]">
             <h3 className="text-sm font-medium uppercase tracking-widest text-luxury-gold mb-4 flex items-center gap-2">
-              <PieChartIcon size={16} /> Ripartizione Categorie
+              <PieChartIcon size={16} /> {t('cat_distribution')}
             </h3>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -1216,7 +1411,7 @@ function LuxeVaultApp() {
 
           <div className="luxury-card p-6 h-[400px] flex flex-col">
             <h3 className="text-sm font-medium uppercase tracking-widest text-luxury-gold mb-4 flex items-center gap-2 shrink-0">
-              <BarChart3 size={16} /> Spese Giornaliere ({viewDate.toLocaleDateString('it-IT', { month: 'long' })})
+              <BarChart3 size={16} /> {t('daily_expenses')} ({viewDate.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { month: 'long' })})
             </h3>
             <div ref={barChartContainerRef} className="flex-1 overflow-x-auto custom-scrollbar relative">
               <div style={{ minWidth: `${Math.max(barData.length * 45, 300)}px`, height: '100%' }}>
@@ -1284,26 +1479,26 @@ function LuxeVaultApp() {
           <div className="luxury-card p-6 lg:col-span-2 max-h-[600px] flex flex-col">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0">
               <h3 className="text-sm font-medium uppercase tracking-widest text-luxury-gold flex items-center gap-2">
-                <History size={16} /> Storico Spese ({viewDate.toLocaleDateString('it-IT', { month: 'long' })})
+                <History size={16} /> {t('expense_history')} ({viewDate.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { month: 'long' })})
               </h3>
               <div className="flex items-center gap-2 bg-black/40 border border-luxury-gold/20 rounded-lg p-1">
                 <button 
                   onClick={() => setSortType('purchase')}
                   className={cn("px-2 py-1 text-[8px] uppercase tracking-widest rounded transition-all", sortType === 'purchase' ? "bg-luxury-gold text-luxury-bg font-bold" : "text-gray-500 hover:text-luxury-gold")}
                 >
-                  Acquisto
+                  {t('purchase')}
                 </button>
                 <button 
                   onClick={() => setSortType('registration')}
                   className={cn("px-2 py-1 text-[8px] uppercase tracking-widest rounded transition-all", sortType === 'registration' ? "bg-luxury-gold text-luxury-bg font-bold" : "text-gray-500 hover:text-luxury-gold")}
                 >
-                  Registrazione
+                  {t('registration')}
                 </button>
                 <button 
                   onClick={() => setSortType('category')}
                   className={cn("px-2 py-1 text-[8px] uppercase tracking-widest rounded transition-all", sortType === 'category' ? "bg-luxury-gold text-luxury-bg font-bold" : "text-gray-500 hover:text-luxury-gold")}
                 >
-                  Categoria
+                  {t('category')}
                 </button>
               </div>
             </div>
@@ -1311,7 +1506,7 @@ function LuxeVaultApp() {
               {filteredExpenses.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-gray-600 space-y-2">
                   <Receipt size={48} className="opacity-20" />
-                  <p className="text-sm italic">Nessuna spesa registrata per questo periodo.</p>
+                  <p className="text-sm italic">{t('no_expenses')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -1351,14 +1546,14 @@ function LuxeVaultApp() {
                                   <span style={{ color: CATEGORY_COLORS[exp.category] || DEFAULT_COLOR }}>{exp.category}</span>
                                   <span>•</span>
                                   <span>
-                                    {date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
-                                    {exp.has_time && ` ore ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`}
+                                    {date.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { day: 'numeric', month: 'short' })}
+                                    {exp.has_time && ` ${t('hour_short')} ${date.toLocaleTimeString(language === 'it' ? 'it-IT' : 'en-US', { hour: '2-digit', minute: '2-digit' })}`}
                                   </span>
                                 </div>
                                 {regDate && (
                                   <div className="flex items-center gap-1 text-[8px] text-gray-600 italic">
                                     <Clock size={8} />
-                                    Registrato: {regDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                    {t('registered')}: {regDate.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                   </div>
                                 )}
                               </div>
@@ -1371,7 +1566,7 @@ function LuxeVaultApp() {
                             <button 
                               onClick={() => handleDeleteExpense(exp.id)}
                               className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                              title="Elimina spesa"
+                              title={t('delete_expense')}
                             >
                               <Trash2 size={16} />
                             </button>
@@ -1391,14 +1586,14 @@ function LuxeVaultApp() {
                   <button 
                     onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}
                     className="p-1.5 hover:bg-luxury-gold/10 text-luxury-gold rounded transition-colors"
-                    title="Mese precedente"
+                    title={t('prev_month')}
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button 
                     onClick={() => historyDateInputRef.current?.showPicker()}
                     className="p-1.5 hover:bg-luxury-gold/10 text-luxury-gold rounded transition-colors relative"
-                    title="Scegli mese"
+                    title={t('choose_month')}
                   >
                     <CalendarIcon size={16} />
                     <input 
@@ -1431,7 +1626,7 @@ function LuxeVaultApp() {
                 onClick={() => setViewDate(new Date())}
                 className="px-4 py-1.5 bg-luxury-gold/10 border border-luxury-gold/30 rounded-full text-[10px] uppercase tracking-widest text-luxury-gold hover:bg-luxury-gold hover:text-luxury-bg font-bold transition-all shadow-sm"
               >
-                Torna a Oggi
+                {t('back_today')}
               </button>
             </div>
           </div>

@@ -9,11 +9,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!API_KEY) return res.status(500).json({ error: "API Key Missing" });
 
   try {
-    const { base64Image, mimeType } = req.body;
-    const prompt = `Analizza questo scontrino. 
-    Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
-    NOTA: Spese alimentari, acqua e pane vanno in "Cibo". 
-    Ritorna SOLO JSON: {"date": "string (YYYY-MM-DD)", "time": "string (HH:mm)", "items": [{"amount": number (sempre positivo), "category": string, "description": string}]}.`;
+    const { base64Image, mimeType, lang } = req.body;
+    let prompt = "";
+    if (lang === 'en') {
+      prompt = `Analyze this receipt. 
+      Allowed categories: ["Food", "Transport", "Shopping", "Health", "Leisure", "Home", "Other"]. 
+      Note: Food, water, and bread go into "Food". 
+      Return ONLY JSON: {"date": "string (YYYY-MM-DD)", "time": "string (HH:mm)", "items": [{"amount": number (always positive), "category": string, "description": string}]}.`;
+    } else {
+      prompt = `Analizza questo scontrino. 
+      Categorie ammesse: ["Cibo", "Trasporti", "Shopping", "Salute", "Svago", "Casa", "Altro"]. 
+      NOTA: Spese alimentari, acqua e pane vanno in "Cibo". 
+      Ritorna SOLO JSON: {"date": "string (YYYY-MM-DD)", "time": "string (HH:mm)", "items": [{"amount": number (sempre positivo), "category": string, "description": string}]}.`;
+    }
 
     const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro"];
     let lastError;
