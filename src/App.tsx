@@ -528,7 +528,7 @@ function LuxeVaultApp() {
       
       if (finalTotal > budget) {
         toast.error(`Budget giornaliero superato!`, {
-          description: `Spesa totale odierna: ${finalTotal.toFixed(2)}€ (Limite: ${budget}€).`,
+          description: `Spesa totale odierna: ${(finalTotal || 0).toFixed(2)}€ (Limite: ${budget}€).`,
           duration: 6000,
         });
         return; // Skip other notifications if budget is exceeded
@@ -1120,7 +1120,7 @@ function LuxeVaultApp() {
             >
               <p className="text-[10px] sm:text-xs text-gray-500 uppercase mb-1 tracking-tighter">Totale Spese {viewDate.toLocaleDateString('it-IT', { month: 'long' }).toUpperCase()}</p>
               <p className="text-xl sm:text-2xl font-bold text-luxury-gold">
-                {totalExpenses.toFixed(2)}€
+                {(totalExpenses || 0).toFixed(2)}€
               </p>
             </motion.div>
             
@@ -1345,7 +1345,7 @@ function LuxeVaultApp() {
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className="text-sm font-bold text-luxury-gold">{exp.amount.toFixed(2)}€</p>
+                              <p className="text-sm font-bold text-luxury-gold">{(exp.amount || 0).toFixed(2)}€</p>
                             </div>
                             <button 
                               onClick={() => handleDeleteExpense(exp.id)}
